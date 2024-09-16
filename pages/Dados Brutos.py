@@ -14,6 +14,7 @@ connection = mysql.connector.connect(
     database='analise_acidentes',
     user='dataframe',
     password='dataframe123!',
+    auth_plugin= 'mysql_native_password'
 )
 cursor = connection.cursor()
 
