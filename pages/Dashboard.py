@@ -344,8 +344,8 @@ with aba2:
 
     # Gráfico 5: Aspecto do Fator Contribuinte
     fator_contribuinte = px.pie(df_fatores, 
-                                    values='Total de Ocorrências', 
-                                    names='fator_area',
+                                    values='Quantidade de Ocorrências', 
+                                    names='Fator Operacional',
                                     title='Aspecto do fator contribuinte')
     st.plotly_chart(fator_contribuinte)
 
