@@ -9,7 +9,7 @@ with open("styles.css") as f:
 
 # Conexão com o banco de dados
 connection = mysql.connector.connect(
-    host='192.168.100.16',
+    host='localhost',
     port='3306',
     database='analise_acidentes',
     user='dataframe',
@@ -55,4 +55,3 @@ with aba4:
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=cursor.column_names)
     st.dataframe(df)
-

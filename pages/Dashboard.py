@@ -9,114 +9,171 @@ with open("styles.css") as f:
 
 # Conexão com o banco de dados
 connection = mysql.connector.connect(
-    host='192.168.100.15',
+    host='localhost',
     port='3306',
     database='analise_acidentes',
     user='dataframe',
     password='dataframe123!',
-    auth_plugin= 'mysql_native_password'
+    auth_plugin='mysql_native_password'
 )
 cursor = connection.cursor()
 
+st.sidebar.header("Filtros") # Filtros na barra lateral
+anos_selecionados = st.sidebar.slider( # Filtro de ano
+    "Intervalo de anos:",
+    min_value=2007,
+    max_value=2023,
+    value=(2007, 2023),
+    step=1
+)
+
+# Filtro de classificação de ocorrência
+classificacao_selecionada = st.sidebar.multiselect(
+    "Classificação de ocorrência(s):",
+    options=['ACIDENTE', 'INCIDENTE', 'INCIDENTE GRAVE'],
+    default=['ACIDENTE', 'INCIDENTE', 'INCIDENTE GRAVE']
+)
+
+# Filtro de UF (Estados)
+ufs_selecionadas = st.sidebar.multiselect(
+    "Selecione o(s) estado(s):",
+    options=['SP', 'RJ', 'MG', 'RS', 'PR', 'SC', 'BA', 'CE', 'PE', 'AM', 'DF'],
+)
+
 def consultar_dados_classificacao(): # Gráfico 1
-    cursor.execute('''
+    classificacao_condicao = ''
+    if classificacao_selecionada:
+        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+    query = f'''
         SELECT ocorrencia_classificacao, COUNT(*) AS total_ocorrencias 
         FROM ocorrencia 
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
+        {classificacao_condicao}
         GROUP BY ocorrencia_classificacao
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ocorrencia_classificacao', 'Total de Ocorrências'])
     return df
 
 def consultar_dados_tipo_fator(): # Gráfico 2
-    cursor.execute('''
+    query = '''
         SELECT
             f.codigo_ocorrencia3,
             f.fator_area AS tipo_ocorrencia,
             o.ocorrencia_tipo_categoria AS fator_contribuinte
         FROM fator_contribuinte AS f
         JOIN ocorrencia_tipo AS o ON f.codigo_ocorrencia3 = o.codigo_ocorrencia1
-        WHERE f.codigo_ocorrencia3 = o.codigo_ocorrencia1
-    ''')
+        JOIN ocorrencia AS oc ON oc.codigo_ocorrencia1 = o.codigo_ocorrencia1
+        WHERE STR_TO_DATE(oc.ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
+    '''
+    params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
+    cursor.execute(query, params)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['codigo_ocorrencia3', 'tipo_ocorrencia', 'fator_contribuinte'])
     df = df.drop_duplicates()
     return df
 
 def consultar_dados_mapa(): # Gráfico 3
-    cursor.execute('''
+    uf_condicao = ''
+    if ufs_selecionadas:
+        uf_condicao = f"AND ocorrencia_uf IN ({', '.join(['\'' + uf + '\'' for uf in ufs_selecionadas])})"
+    query = f'''
         SELECT ocorrencia_uf, COUNT(*) AS total_ocorrencias
         FROM ocorrencia
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
+        {uf_condicao}
         GROUP BY ocorrencia_uf
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ocorrencia_uf', 'Total de Ocorrências'])
     return df
 
 def consultar_dados_por_ano(): # Gráfico 4
-    cursor.execute('''
+    classificacao_condicao = ''
+    if classificacao_selecionada:
+        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+    query = f'''
         SELECT 
             YEAR(STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y')) AS ano, 
             ocorrencia_classificacao, 
             COUNT(*) AS total_ocorrencias
         FROM ocorrencia
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
+        {classificacao_condicao}
         GROUP BY ano, ocorrencia_classificacao
         ORDER BY ano
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ano', 'ocorrencia_classificacao', 'total_ocorrencias'])
     return df
 
-def consultar_fatores_operacionais(): # Gráfico 5
-    cursor.execute('''
-        SELECT fator_area, COUNT(*) AS total_ocorrencias
-        FROM fator_contribuinte
-        GROUP BY fator_area
-    ''')
+def consultar_fatores_operacionais():  # Gráfico 5
+    query = '''
+        SELECT 
+            f.fator_area AS "Fator Operacional",
+            COUNT(*) AS "Quantidade de Ocorrências"
+        FROM fator_contribuinte AS f
+        JOIN ocorrencia AS o ON f.codigo_ocorrencia3 = o.codigo_ocorrencia3
+        GROUP BY f.fator_area
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
-    df = pd.DataFrame(resultados, columns=['fator_area', 'Total de Ocorrências'])
+    df = pd.DataFrame(resultados, columns=['Fator Operacional', 'Quantidade de Ocorrências'])
     return df
 
+
 def consultar_tipos_ocorrencia(): # Gráfico 6
-    cursor.execute('''
+    query = f'''
         SELECT ocorrencia_tipo_categoria, COUNT(*) AS total_ocorrencias
         FROM ocorrencia_tipo
+        JOIN ocorrencia ON ocorrencia_tipo.codigo_ocorrencia1 = ocorrencia.codigo_ocorrencia1
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
         GROUP BY ocorrencia_tipo_categoria
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ocorrencia_tipo_categoria', 'Total de Ocorrências'])
     return df
 
-def consultar_dados_ocorrencia_tipo_veiculo(): # Gráfico 7
-    cursor.execute('''
+def consultar_dados_ocorrencia_tipo_veiculo():  # Gráfico 7
+    query = '''
         SELECT 
             o.ocorrencia_classificacao, 
             a.aeronave_tipo_veiculo,
             COUNT(*) AS total_ocorrencias
-        FROM aeronave a
-        JOIN ocorrencia o ON a.codigo_ocorrencia2 = o.codigo_ocorrencia2
+        FROM aeronave AS a
+        JOIN ocorrencia AS o ON a.codigo_ocorrencia2 = o.codigo_ocorrencia2
         GROUP BY o.ocorrencia_classificacao, a.aeronave_tipo_veiculo
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ocorrencia_classificacao', 'aeronave_tipo_veiculo', 'Total de Ocorrências'])
+    # Agrupando os tipos de veículos
     df['aeronave_tipo_veiculo'] = df['aeronave_tipo_veiculo'].apply(
         lambda x: x if x in ['AVIÃO', 'HELICÓPTERO'] else 'OUTROS'
     )
+    
     return df
 
 def consultar_dados_aeronave_tipo_operacao(): # Gráfico 8
-    cursor.execute('''
+    query = f'''
         SELECT aeronave_tipo_operacao, COUNT(*) AS total_ocorrencias
         FROM aeronave
+        JOIN ocorrencia ON aeronave.codigo_ocorrencia2 = ocorrencia.codigo_ocorrencia2
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
         GROUP BY aeronave_tipo_operacao
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['aeronave_tipo_operacao', 'Total de Ocorrências'])
     df = df.sort_values(by='Total de Ocorrências', ascending=False).head(5)
     return df
 
 def consultar_dados_fatalidade_nivel_dano(): # Gráfico 9
-    cursor.execute('''
+    query = f'''
         SELECT 
             CASE 
                 WHEN aeronave_nivel_dano IN ('DESTRUÍDA', 'LEVE', 'NENHUM', 'SUBSTANCIAL') THEN aeronave_nivel_dano
@@ -124,8 +181,11 @@ def consultar_dados_fatalidade_nivel_dano(): # Gráfico 9
             END AS tipo_dano,
             SUM(aeronave_fatalidades_total) AS total_fatalidades
         FROM aeronave
+        JOIN ocorrencia ON aeronave.codigo_ocorrencia2 = ocorrencia.codigo_ocorrencia2
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
         GROUP BY tipo_dano
-    ''')
+    '''
+    cursor.execute(query)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['Tipo de Dano', 'Total de Fatalidades'])
     return df
@@ -225,12 +285,17 @@ with aba1:
     st.plotly_chart(grafico_tipo_fator.update_layout(
         height=800,
         width=10000,
-        legend=dict(orientation='h',
-                    xanchor='auto',
+        legend=dict(orientation='v',
+                    xanchor='right',
                     yanchor='top',
                     x=0.5,
                     y=-0.3,
-                    ), margin=dict(l=0, r=0, t=30, b=0)))
+                    traceorder='normal',
+                    font=dict(size=12),
+                    title=''),
+        showlegend=False,  # Remove a legenda
+        margin=dict(l=0, r=0, t=30, b=0)
+    ))
     
     st.write('') # Quebrar linha
     st.write('') # Quebrar linha    
