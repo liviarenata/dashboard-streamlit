@@ -56,22 +56,22 @@ def consultar_dados_classificacao(): # Gráfico 1
     df = pd.DataFrame(resultados, columns=['ocorrencia_classificacao', 'Total de Ocorrências'])
     return df
 
-def consultar_dados_tipo_fator(): # Gráfico 2
+def consultar_dados_tipo_fator():  # Gráfico 2
     query = '''
         SELECT
-            f.codigo_ocorrencia3,
+            COUNT(DISTINCT f.codigo_ocorrencia3) AS total_ocorrencias,  -- Evitar duplicações de ocorrências
             f.fator_area AS tipo_ocorrencia,
             o.ocorrencia_tipo_categoria AS fator_contribuinte
         FROM fator_contribuinte AS f
         JOIN ocorrencia_tipo AS o ON f.codigo_ocorrencia3 = o.codigo_ocorrencia1
         JOIN ocorrencia AS oc ON oc.codigo_ocorrencia1 = o.codigo_ocorrencia1
         WHERE STR_TO_DATE(oc.ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
+        GROUP BY f.fator_area, o.ocorrencia_tipo_categoria  -- Agrupando para não inflar os resultados
     '''
     params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
     cursor.execute(query, params)
     resultados = cursor.fetchall()
-    df = pd.DataFrame(resultados, columns=['codigo_ocorrencia3', 'tipo_ocorrencia', 'fator_contribuinte'])
-    df = df.drop_duplicates()
+    df = pd.DataFrame(resultados, columns=['total_ocorrencias', 'tipo_ocorrencia', 'fator_contribuinte'])
     return df
 
 def consultar_dados_mapa(): # Gráfico 3
@@ -268,34 +268,37 @@ with aba1:
     grafico_tipo_fator = px.bar(
         df_tipo_fator,
         x='tipo_ocorrencia',
-        y='codigo_ocorrencia3',
+        y='total_ocorrencias',  
         color='fator_contribuinte',
         title='Tipo de ocorrência por fator contribuinte',
         barmode='group',
         labels={
             'tipo_ocorrencia': 'Tipo de Ocorrência do Acidente',
             'fator_contribuinte': 'Fator Contribuinte',
-            'codigo_ocorrencia3': 'Ocorrências'
+            'total_ocorrencias': 'Ocorrências'  
         }
     )
 
     st.write('') # Quebrar linha
     st.write('') # Quebrar linha
 
-    st.plotly_chart(grafico_tipo_fator.update_layout(
-        height=800,
-        width=10000,
-        legend=dict(orientation='v',
-                    xanchor='right',
-                    yanchor='top',
-                    x=0.5,
-                    y=-0.3,
-                    traceorder='normal',
-                    font=dict(size=12),
-                    title=''),
-        showlegend=False,  # Remove a legenda
-        margin=dict(l=0, r=0, t=30, b=0)
-    ))
+    st.plotly_chart(
+        grafico_tipo_fator.update_layout(
+            height=600,
+            width=1500,  
+            legend=dict(
+                orientation='v',
+                xanchor='right',
+                yanchor='top',
+                x=0.5,
+                y=-0.3,
+                traceorder='normal',
+                font=dict(size=100)
+            ),
+            showlegend=False, # Remove a descrição
+            margin=dict(l=0, r=0, t=30, b=0)
+        )
+    )
     
     st.write('') # Quebrar linha
     st.write('') # Quebrar linha    
