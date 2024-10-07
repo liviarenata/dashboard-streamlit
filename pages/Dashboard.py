@@ -9,7 +9,7 @@ with open("styles.css") as f:
 
 # Conexão com o banco de dados
 connection = mysql.connector.connect(
-    host='localhost',
+    host='72.14.201.238',
     port='3306',
     database='analise_acidentes',
     user='dataframe',
@@ -18,7 +18,7 @@ connection = mysql.connector.connect(
 )
 cursor = connection.cursor()
 
-st.sidebar.header("Filtros") # Filtros na barra lateral
+st.sidebar.header("Filtros") # Filtros na barra lateral 
 anos_selecionados = st.sidebar.slider( # Filtro de ano
     "Intervalo de anos:",
     min_value=2007,
@@ -30,8 +30,7 @@ anos_selecionados = st.sidebar.slider( # Filtro de ano
 # Filtro de classificação de ocorrência
 classificacao_selecionada = st.sidebar.multiselect(
     "Classificação de ocorrência(s):",
-    options=['ACIDENTE', 'INCIDENTE', 'INCIDENTE GRAVE'],
-    default=['ACIDENTE', 'INCIDENTE', 'INCIDENTE GRAVE']
+    options=['ACIDENTE', 'INCIDENTE', 'INCIDENTE GRAVE']
 )
 
 # Filtro de UF (Estados)
@@ -59,14 +58,14 @@ def consultar_dados_classificacao(): # Gráfico 1
 def consultar_dados_tipo_fator():  # Gráfico 2
     query = '''
         SELECT
-            COUNT(DISTINCT f.codigo_ocorrencia3) AS total_ocorrencias,  -- Evitar duplicações de ocorrências
+            COUNT(DISTINCT f.codigo_ocorrencia3) AS total_ocorrencias,  
             f.fator_area AS tipo_ocorrencia,
             o.ocorrencia_tipo_categoria AS fator_contribuinte
         FROM fator_contribuinte AS f
         JOIN ocorrencia_tipo AS o ON f.codigo_ocorrencia3 = o.codigo_ocorrencia1
         JOIN ocorrencia AS oc ON oc.codigo_ocorrencia1 = o.codigo_ocorrencia1
         WHERE STR_TO_DATE(oc.ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
-        GROUP BY f.fator_area, o.ocorrencia_tipo_categoria  -- Agrupando para não inflar os resultados
+        GROUP BY f.fator_area, o.ocorrencia_tipo_categoria 
     '''
     params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
     cursor.execute(query, params)
