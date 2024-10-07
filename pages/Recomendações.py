@@ -9,7 +9,7 @@ with open("styles.css") as f:
 
 # Conexão com o banco de dados
 connection = mysql.connector.connect(
-    host='177.174.97.130',
+    host='localhost',
     port='3306',
     database='analise_acidentes',
     user='dataframe',
