@@ -116,13 +116,14 @@ def consultar_fatores_operacionais():  # Gráfico 5
             COUNT(*) AS "Quantidade de Ocorrências"
         FROM fator_contribuinte AS f
         JOIN ocorrencia AS o ON f.codigo_ocorrencia3 = o.codigo_ocorrencia3
+        WHERE STR_TO_DATE(o.ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
         GROUP BY f.fator_area
     '''
-    cursor.execute(query)
+    params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
+    cursor.execute(query, params)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['Fator Operacional', 'Quantidade de Ocorrências'])
     return df
-
 
 def consultar_tipos_ocorrencia(): # Gráfico 6
     query = f'''
@@ -138,34 +139,41 @@ def consultar_tipos_ocorrencia(): # Gráfico 6
     return df
 
 def consultar_dados_ocorrencia_tipo_veiculo():  # Gráfico 7
-    query = '''
+    classificacao_condicao = ''
+    if classificacao_selecionada:
+        classificacao_condicao = f"AND o.ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+    
+    query = f'''
         SELECT 
             o.ocorrencia_classificacao, 
             a.aeronave_tipo_veiculo,
             COUNT(*) AS total_ocorrencias
         FROM aeronave AS a
         JOIN ocorrencia AS o ON a.codigo_ocorrencia2 = o.codigo_ocorrencia2
+        WHERE STR_TO_DATE(o.ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
+        {classificacao_condicao}
         GROUP BY o.ocorrencia_classificacao, a.aeronave_tipo_veiculo
     '''
-    cursor.execute(query)
+    params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
+    cursor.execute(query, params)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['ocorrencia_classificacao', 'aeronave_tipo_veiculo', 'Total de Ocorrências'])
     # Agrupando os tipos de veículos
     df['aeronave_tipo_veiculo'] = df['aeronave_tipo_veiculo'].apply(
         lambda x: x if x in ['AVIÃO', 'HELICÓPTERO'] else 'OUTROS'
     )
-    
     return df
 
-def consultar_dados_aeronave_tipo_operacao(): # Gráfico 8
-    query = f'''
+def consultar_dados_aeronave_tipo_operacao():  # Gráfico 8
+    query = '''
         SELECT aeronave_tipo_operacao, COUNT(*) AS total_ocorrencias
         FROM aeronave
         JOIN ocorrencia ON aeronave.codigo_ocorrencia2 = ocorrencia.codigo_ocorrencia2
-        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN '{anos_selecionados[0]}-01-01' AND '{anos_selecionados[1]}-12-31'
+        WHERE STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y') BETWEEN %s AND %s
         GROUP BY aeronave_tipo_operacao
     '''
-    cursor.execute(query)
+    params = (f'{anos_selecionados[0]}-01-01', f'{anos_selecionados[1]}-12-31')
+    cursor.execute(query, params)
     resultados = cursor.fetchall()
     df = pd.DataFrame(resultados, columns=['aeronave_tipo_operacao', 'Total de Ocorrências'])
     df = df.sort_values(by='Total de Ocorrências', ascending=False).head(5)

@@ -59,9 +59,11 @@ def recomendacao_anterior():
 def buscar_recomendacao_por_id(codigo_ocorrencia4):
     resultado = df[df['codigo_ocorrencia4'] == codigo_ocorrencia4]
     if not resultado.empty:
-        st.session_state.id = resultado.id[0]
+        # Pega o índice da primeira ocorrência que coincide com o ID buscado
+        st.session_state.id = resultado.index[0]
     else:
         st.warning(f"ID {codigo_ocorrencia4} não encontrado.")
+
 id_pesquisado = st.text_input('ID da Recomendação', value='')
 if st.button('Buscar'):
     buscar_recomendacao_por_id(id_pesquisado)
