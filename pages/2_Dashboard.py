@@ -3,6 +3,8 @@ import pandas as pd
 import plotly.express as px
 import mysql.connector
 
+st.set_page_config(layout = 'wide')
+
 # Carregar estilos do arquivo CSS
 with open("styles.css") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)

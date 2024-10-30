@@ -4,30 +4,29 @@ import base64
 st.set_page_config(layout = 'wide')
 
 # Carregar a imagem e converter para base64
-# def get_base64_of_bin_file(bin_file):
-#     with open(bin_file, 'rb') as f:
-#         data = f.read()
-#     return base64.b64encode(data).decode()
-# img_base64 = get_base64_of_bin_file('images/plane3.jpg')
+def get_base64_of_bin_file(bin_file):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    return base64.b64encode(data).decode()
+img_base64 = get_base64_of_bin_file('images/sky.jpg')
 
-# background_imagem = f"""
-# <style>
-# [data-testid="stAppViewContainer"] {{
-#     background-image: url("data:image/jpg;base64,{img_base64}");
-#     background-size: cover;
-#     background-attachment: fixed;
-#     background-repeat: no-repeat;
-# }}
-# </style>
-# """
-# st.markdown(background_imagem, unsafe_allow_html=True)
+background_imagem = f"""
+<style>
+[data-testid="stAppViewContainer"] {{
+    background-image: url("data:image/jpg;base64,{img_base64}");
+    background-size: cover;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}}
+</style>
+"""
+st.markdown(background_imagem, unsafe_allow_html=True)
 
 # Carregar estilos do arquivo CSS
 with open("styles.css") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 st.title('Análise de Acidentes Aéreos')
-
 
 st.markdown('''
 Esse site será um dashboard para ser usado como uma ferramenta de visualização de dados que obtemos atráves do CENIPA, permitindo pesquisar as ocorrências aeronáuticas ocorridas no Brasil desde 2007 até 2023 reportadas no Portal Único. Os dados são exibidos em forma de gráficos e tabelas, que são dinamicamente modificados conforme filtros de pesquisa aplicados pelo próprio usuário.
