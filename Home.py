@@ -8,7 +8,7 @@ def get_base64_of_bin_file(bin_file):
     with open(bin_file, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
-img_base64 = get_base64_of_bin_file('images/sky.jpg')
+img_base64 = get_base64_of_bin_file('images/sky5.jpg')
 
 background_imagem = f"""
 <style>
