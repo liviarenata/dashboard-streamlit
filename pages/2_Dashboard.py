@@ -44,7 +44,7 @@ ufs_selecionadas = st.sidebar.multiselect(
 def consultar_dados_classificacao(): # Gráfico 1
     classificacao_condicao = ''
     if classificacao_selecionada:
-        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join([repr(c) for c in classificacao_selecionada])})"
     query = f'''
         SELECT ocorrencia_classificacao, COUNT(*) AS total_ocorrencias 
         FROM ocorrencia 
