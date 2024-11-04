@@ -422,8 +422,23 @@ with aba3:
     st.plotly_chart(aeronave_operacao)
 
     # Gráfico 9: Quantidade de fatalidades por nível de dano da aeronave
+    with st.expander('Quantidade de fatalidades por nível de dano da aeronave'):
+        st.markdown('''
+            <span style='font-family: serif'>
+                    
+            **Destruída:** A aeronave sofreu danos irrecuperáveis e é considerada perda total. A estrutura e componentes principais não são restauráveis.
+         
+            **Leve:** Danos mínimos que geralmente não comprometem significativamente a integridade estrutural ou a capacidade operacional da aeronave.
+
+            **Nenhum:** A aeronave não sofreu nenhum dano perceptível. Isso indica que o evento foi tão leve que não causou qualquer impacto físico ou estrutural.
+
+            **Substancial:** Danos consideráveis foram sofridos, o que deve exigir reparos extensivos. No entanto, a aeronave ainda é considerada reparável e pode ser restaurada para operação.
+                    
+            **Outros:** Inclui danos que não se encaixam em nenhuma das classificações padrão ou que podem estar em avaliação.                                                                                        
+            </span>
+        ''', unsafe_allow_html=True)
     df_fatalidade_nivel_dano['Tipo de Dano'] = df_fatalidade_nivel_dano['Tipo de Dano'].map({
-        'DESTRUÍDA': 'Destruida',
+        'DESTRUÍDA': 'Destruída',
         'LEVE': 'Leve',
         'NENHUM': 'Nenhum',
         'SUBSTANCIAL': 'Substancial',
