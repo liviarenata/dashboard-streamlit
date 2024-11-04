@@ -10,22 +10,15 @@ with open("styles.css") as f:
     st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 # Conexão com o banco de dados
-try:
-    connection = mysql.connector.connect(
-        host='localhost',
-        port='3306',
-        database='analise_acidentes',
-        user='dataframe',
-        password='dataframe123!',
-        auth_plugin='mysql_native_password'
-    )
-    if connection.is_connected():
-        print("Conexão bem-sucedida!")
-except mysql.connector.Error as err:
-    print(f"Erro: {err}")
-finally:
-    if connection.is_connected():
-        connection.close()
+connection = mysql.connector.connect(
+    host='localhost',
+    port='3306',
+    database='analise_acidentes',
+    user='dataframe',
+    password='dataframe123!',
+    auth_plugin='mysql_native_password'
+)
+cursor = connection.cursor()
 
 st.sidebar.header("Filtros") # Filtros na barra lateral 
 anos_selecionados = st.sidebar.slider( # Filtro de ano
