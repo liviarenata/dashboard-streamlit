@@ -78,7 +78,7 @@ def consultar_dados_tipo_fator():  # Gráfico 2
 def consultar_dados_mapa(): # Gráfico 3
     uf_condicao = ''
     if ufs_selecionadas:
-        uf_condicao = f"AND ocorrencia_uf IN ({', '.join(['\'' + uf + '\'' for uf in ufs_selecionadas])})"
+        uf_condicao = f"AND ocorrencia_uf IN ({', '.join([repr(uf) for uf in ufs_selecionadas])})"
     query = f'''
         SELECT ocorrencia_uf, COUNT(*) AS total_ocorrencias
         FROM ocorrencia
@@ -94,7 +94,7 @@ def consultar_dados_mapa(): # Gráfico 3
 def consultar_dados_por_ano(): # Gráfico 4
     classificacao_condicao = ''
     if classificacao_selecionada:
-        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+        classificacao_condicao = f"AND ocorrencia_classificacao IN ({', '.join([repr(c) for c in classificacao_selecionada])})"
     query = f'''
         SELECT 
             YEAR(STR_TO_DATE(ocorrencia_dia, '%d/%m/%Y')) AS ano, 
@@ -143,7 +143,7 @@ def consultar_tipos_ocorrencia(): # Gráfico 6
 def consultar_dados_ocorrencia_tipo_veiculo():  # Gráfico 7
     classificacao_condicao = ''
     if classificacao_selecionada:
-        classificacao_condicao = f"AND o.ocorrencia_classificacao IN ({', '.join(['\'' + c + '\'' for c in classificacao_selecionada])})"
+        classificacao_condicao = f"AND o.ocorrencia_classificacao IN ({', '.join([repr(c) for c in classificacao_selecionada])})"
     
     query = f'''
         SELECT 
