@@ -271,6 +271,41 @@ with aba1:
             <span style='font-family: serif'>
             Este gráfico mostra os tipos de ocorrências de acidentes e seus respectivos fatores contribuintes.
             Ele destaca as áreas principais que contribuíram para cada tipo de acidente.
+            
+            <br><span style="font-size: 25px;">**Fator Humano**</span>
+                    
+            Está ligado ao comportamento, habilidades e decisões dos indivíduos envolvidos na operação. Pode incluir limitações físicas, mentais ou emocionais. Exemplos:
+
+            <ul>
+                <li>Erro do piloto ou da tripulação (ex.: controle inadequado da aeronave).</li>
+                <li>Fadiga, estresse ou desatenção.</li>
+                <li>Treinamento insuficiente ou falta de qualificação.</li>
+                <li>Problemas de coordenação entre tripulantes ou com a equipe em solo.</li>
+                <li>Comunicação ineficaz entre os membros da tripulação.</li>
+            </ul>
+
+            
+            <br><span style="font-size: 25px;">**Fator Operacional**</span>
+                    
+            Refere-se a aspectos relacionados à gestão, planejamento, procedimentos e operações de voo. Exemplos:
+
+            <ul>
+                <li>Falhas nos procedimentos operacionais (como erro no plano de voo ou no despacho da aeronave).</li>
+                <li>Comunicação inadequada entre equipes ou com o controle de tráfego aéreo.</li>
+                <li>Decisões inadequadas de comando, como decolagem em condições meteorológicas adversas.</li>
+                <li>Problemas relacionados à infraestrutura (ex.: pistas mal conservadas ou sinalização deficiente).</li>
+            </ul>  
+
+            <br><span style="font-size: 25px;">**Fator Material**</span>
+                    
+            Relaciona-se a falhas mecânicas, estruturais ou técnicas da aeronave ou de seus componentes. Exemplos
+
+            <ul>
+                <li>Pane mecânica no motor ou nos sistemas de controle de voo.</li>
+                <li>Defeitos em instrumentos de navegação ou comunicação.</li>
+                <li>Falhas estruturais na fuselagem ou asas.</li>
+                <li>Problemas devido à manutenção inadequada ou uso de peças defeituosas.</li>
+            </ul>                  
             </span>
         ''', unsafe_allow_html=True)
 
