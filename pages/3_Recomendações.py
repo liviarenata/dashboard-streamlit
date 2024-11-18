@@ -64,7 +64,7 @@ def buscar_recomendacao_por_id(codigo_ocorrencia4):
     else:
         st.warning(f"ID {codigo_ocorrencia4} não encontrado.")
 
-id_pesquisado = st.text_input('ID da Recomendação', value='')
+id_pesquisado = st.text_input('N° Ocorrência', value='')
 if st.button('Buscar'):
     buscar_recomendacao_por_id(id_pesquisado)
 

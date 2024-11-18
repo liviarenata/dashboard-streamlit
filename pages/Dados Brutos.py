@@ -33,7 +33,7 @@ st.markdown('''
                                 
 ''', unsafe_allow_html=True)
 
-aba1, aba2, aba3, aba4 = st.tabs(['Tabela de ocorrência', 'Tabela do tipo de ocorrência', 'Tabela de aeronave', 'Tabela de fator contribuinte'])
+aba1, aba2, aba3, aba4, aba5 = st.tabs(['Tabela de ocorrência', 'Tabela do tipo de ocorrência', 'Tabela de aeronave', 'Tabela de fator contribuinte', 'Tabela de recomendações'])
 
 with aba1:
     cursor.execute('SELECT * FROM ocorrencia')
@@ -52,6 +52,11 @@ with aba3:
     st.dataframe(df)
 with aba4:
     cursor.execute('SELECT * FROM fator_contribuinte')
+    data = cursor.fetchall()
+    df = pd.DataFrame(data, columns=cursor.column_names)
+    st.dataframe(df)
+with aba5:
+    cursor.execute('SELECT * FROM recomendacao')
     data = cursor.fetchall()
     df = pd.DataFrame(data, columns=cursor.column_names)
     st.dataframe(df)
